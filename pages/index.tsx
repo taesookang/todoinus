@@ -1,8 +1,21 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import Image from 'next/image'
+import type {
+  NextPage,
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+} from "next";
+import { unstable_getServerSession } from "next-auth/next";
+import Head from "next/head";
+import Image from "next/image";
+import { authOptions } from "./api/auth/[...nextauth]";
+import { signOut } from "next-auth/react";
+import client from "../lib/apollo";
+import { UserByEmailDocument } from '../_generated'
 
-const Home: NextPage = () => {
+const Home: NextPage = ({
+  currentUser,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  console.log("session user: ", currentUser);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
       <Head>
@@ -11,15 +24,18 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
+        <button className="w-40 h-12 bg-blue-200" onClick={() => signOut()}>
+          Logout
+        </button>
         <h1 className="text-6xl font-bold">
-          Welcome to{' '}
+          Welcome to{" "}
           <a className="text-blue-600" href="https://nextjs.org">
             Next.js!
           </a>
         </h1>
 
         <p className="mt-3 text-2xl">
-          Get started by editing{' '}
+          Get started by editing{" "}
           <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
             pages/index.tsx
           </code>
@@ -75,12 +91,36 @@ const Home: NextPage = () => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{" "}
           <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
         </a>
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const session = await unstable_getServerSession(req, res, authOptions);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+
+  const { data } = await client.query({
+    query: UserByEmailDocument,
+    variables: { email: session.user.email },
+  });
+
+  return {
+    props: {
+      currentUser: data ? data.userByEmail : null,
+    },
+  };
+};

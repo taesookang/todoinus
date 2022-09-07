@@ -3,23 +3,69 @@
 
 generator client {
   provider = "prisma-client-js"
+  // previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // referentialIntegrity = "prisma"
 }
 
 model User {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updateAt  DateTime @updatedAt
-  email     String   @unique
+  id        String  @id @unique @default(cuid())
+  name      String?
+  email     String? @unique
+  password  String?
   image     String?
-  role      Role     @default(USER)
+  doneTodos Todo[]
+  rooms     Room[]
+  invitations_sent Invitaion[] @relation("sender")
+  invitations_received Invitaion[] @relation("receiver")
+
+  @@map("users")
 }
 
-enum Role {
-  ADMIN
-  USER
+model Project {
+  id     String @id @unique @default(cuid())
+  name   String
+  todos  Todo[]
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  roomId String @map("room_id")
+
+  @@map("projects")
+}
+
+model Room {
+  id       String    @id @unique @default(cuid())
+  name     String
+  projects Project[]
+  members  User[]
+  invitations Invitaion[]
+
+  @@map("rooms")
+}
+
+model Invitaion {
+  id String @id @unique @default(cuid())
+  sender User @relation(name: "sender", fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  senderId String
+  receiver User @relation(name: "receiver",fields: [receiverId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  receiverId String
+  room Room @relation(fields: [roomId], references: [id],onDelete: Cascade, onUpdate: Cascade)
+  roomId String
+  createdAt DateTime @default(now())
+} 
+
+
+model Todo {
+  id        String   @id @unique @default(cuid())
+  content   String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectId String   @map("project_id")
+  dueDate   DateTime?
+  doneby    User?    @relation(fields: [doneByID], references: [id], onUpdate: Cascade)
+  doneByID  String?  @map("done_by_user_id")
+
+  @@map("todos")
 }
