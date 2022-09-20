@@ -19,6 +19,7 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation';
   AddTodo?: Maybe<Todo>;
+  createRoom?: Maybe<Room>;
   createUser?: Maybe<User>;
   updateUserImage?: Maybe<User>;
 };
@@ -26,6 +27,12 @@ export type Mutation = {
 
 export type MutationAddTodoArgs = {
   todo: TodoInput;
+};
+
+
+export type MutationCreateRoomArgs = {
+  name: Scalars['String'];
+  userId: Scalars['String'];
 };
 
 
@@ -51,10 +58,22 @@ export type Project = {
 
 export type Query = {
   __typename?: 'Query';
+  roomById?: Maybe<Room>;
+  rooms?: Maybe<Array<Maybe<Room>>>;
   todosByProjectId?: Maybe<Array<Maybe<Todo>>>;
   userByEmail?: Maybe<User>;
   userById?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
+};
+
+
+export type QueryRoomByIdArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueryRoomsArgs = {
+  userId: Scalars['String'];
 };
 
 
@@ -123,6 +142,20 @@ export type AllUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllUsersQuery = { __typename?: 'Query', users?: Array<{ __typename?: 'User', id?: string | null, name?: string | null, email?: string | null, image?: string | null } | null> | null };
+
+export type RoomsQueryVariables = Exact<{
+  userId: Scalars['String'];
+}>;
+
+
+export type RoomsQuery = { __typename?: 'Query', rooms?: Array<{ __typename?: 'Room', id?: string | null, name?: string | null, projects?: Array<{ __typename?: 'Project', id?: string | null } | null> | null, members?: Array<{ __typename?: 'User', id?: string | null } | null> | null } | null> | null };
+
+export type RoomByIdQueryVariables = Exact<{
+  roomId: Scalars['String'];
+}>;
+
+
+export type RoomByIdQuery = { __typename?: 'Query', roomById?: { __typename?: 'Room', name?: string | null, members?: Array<{ __typename?: 'User', id?: string | null } | null> | null } | null };
 
 
 export const CreateUserDocument = gql`
@@ -241,3 +274,83 @@ export function useAllUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<A
 export type AllUsersQueryHookResult = ReturnType<typeof useAllUsersQuery>;
 export type AllUsersLazyQueryHookResult = ReturnType<typeof useAllUsersLazyQuery>;
 export type AllUsersQueryResult = Apollo.QueryResult<AllUsersQuery, AllUsersQueryVariables>;
+export const RoomsDocument = gql`
+    query Rooms($userId: String!) {
+  rooms(userId: $userId) {
+    id
+    name
+    projects {
+      id
+    }
+    members {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useRoomsQuery__
+ *
+ * To run a query within a React component, call `useRoomsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRoomsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRoomsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useRoomsQuery(baseOptions: Apollo.QueryHookOptions<RoomsQuery, RoomsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RoomsQuery, RoomsQueryVariables>(RoomsDocument, options);
+      }
+export function useRoomsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RoomsQuery, RoomsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RoomsQuery, RoomsQueryVariables>(RoomsDocument, options);
+        }
+export type RoomsQueryHookResult = ReturnType<typeof useRoomsQuery>;
+export type RoomsLazyQueryHookResult = ReturnType<typeof useRoomsLazyQuery>;
+export type RoomsQueryResult = Apollo.QueryResult<RoomsQuery, RoomsQueryVariables>;
+export const RoomByIdDocument = gql`
+    query RoomById($roomId: String!) {
+  roomById(id: $roomId) {
+    name
+    members {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useRoomByIdQuery__
+ *
+ * To run a query within a React component, call `useRoomByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRoomByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRoomByIdQuery({
+ *   variables: {
+ *      roomId: // value for 'roomId'
+ *   },
+ * });
+ */
+export function useRoomByIdQuery(baseOptions: Apollo.QueryHookOptions<RoomByIdQuery, RoomByIdQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RoomByIdQuery, RoomByIdQueryVariables>(RoomByIdDocument, options);
+      }
+export function useRoomByIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RoomByIdQuery, RoomByIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RoomByIdQuery, RoomByIdQueryVariables>(RoomByIdDocument, options);
+        }
+export type RoomByIdQueryHookResult = ReturnType<typeof useRoomByIdQuery>;
+export type RoomByIdLazyQueryHookResult = ReturnType<typeof useRoomByIdLazyQuery>;
+export type RoomByIdQueryResult = Apollo.QueryResult<RoomByIdQuery, RoomByIdQueryVariables>;

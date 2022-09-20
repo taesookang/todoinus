@@ -15,3 +15,25 @@ query AllUsers {
     image
   }
 }
+
+query Rooms($userId: String!) {
+  rooms(userId: $userId) {
+    id
+    name
+    projects {
+      id
+    }
+    members {
+      id
+    }
+  }
+}
+
+query RoomById($roomId: String!) {
+  roomById(id: $roomId) {
+    name
+    members {
+      id
+    }
+  }
+}

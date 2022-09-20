@@ -11,8 +11,8 @@ import {
 } from "nexus";
 
 import { Todo } from "./todo";
-import { Room } from './room';
-import { hash } from 'bcrypt'
+import { Room } from "./room";
+import { hash } from "bcrypt";
 
 export const User = objectType({
   name: "User",
@@ -39,14 +39,14 @@ export const User = objectType({
         return ctx.prisma.room.findMany({
           where: {
             members: {
-              every: {
-                id: parent.id,
+              some: {
+                id: parent.id
               }
             }
-          }
-        })
-      }
-    })
+          },
+        });
+      },
+    });
   },
 });
 
@@ -132,14 +132,31 @@ export const CreateUser = extendType({
         password: nonNull(stringArg()),
       },
       async resolve(_, args, ctx) {
+        const user = ctx.prisma.user.findUnique({
+          where: {
+            email: args.email,
+          },
+        });
+
+        if (user) {
+          return Promise.reject(
+            new Error("An account already exists with the provided email.")
+          );
+        }
+        if (args.password.length < 8) {
+          return Promise.reject(
+            new Error("Password must be longer than 8 characters.")
+          );
+        }
+
         return await ctx.prisma.user.create({
           data: {
             email: args.email,
             name: args.name,
-            password: await hash(args.password, 10) 
-          }
+            password: await hash(args.password, 10),
+          },
         });
       },
     });
   },
-})
+});

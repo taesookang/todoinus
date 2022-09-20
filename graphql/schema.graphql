@@ -9,6 +9,7 @@ scalar DateTime
 
 type Mutation {
   AddTodo(todo: TodoInput!): Todo
+  createRoom(name: String!, userId: String!): Room
   createUser(email: String!, name: String!, password: String!): User
   updateUserImage(id: String!, imageFile: String): User
 }
@@ -21,6 +22,8 @@ type Project {
 }
 
 type Query {
+  roomById(id: String!): Room
+  rooms(userId: String!): [Room]
   todosByProjectId(projectId: String!): [Todo]
   userByEmail(email: String!): User
   userById(id: String!): User

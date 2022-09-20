@@ -18,9 +18,10 @@ export const SignUp: NextPage = () => {
     name: "",
     password: "",
   });
+  const [err, setErr] = useState<string | null>(null);
 
   const { status } = useSession();
-  const [createUserMutation, { data, loading, error }] = useCreateUserMutation({
+  const [createUserMutation, { data, loading }] = useCreateUserMutation({
     variables: {
       email: signUpInfo.email,
       name: signUpInfo.name,
@@ -36,13 +37,17 @@ export const SignUp: NextPage = () => {
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    await createUserMutation().then(() => {
-      signIn("credentials", {
-        email: signUpInfo.email,
-        password: signUpInfo.password,
-        redirect: false,
+    await createUserMutation()
+      .then(() => {
+        signIn("credentials", {
+          email: signUpInfo.email,
+          password: signUpInfo.password,
+          redirect: false,
+        });
+      })
+      .catch((error) => {
+        setErr(error.message);
       });
-    });
   };
   return (
     <div className="w-full h-screen flex items-center justify-center">
@@ -83,10 +88,10 @@ export const SignUp: NextPage = () => {
               }}
             />
           </div>
-          <div className="w-full relative flex justify-center">
-            {error && (
-              <div className="absolute -top-4 text-brand-red text-sm">
-                {error.message}
+          <div className="w-full relative flex flex-col justify-center items-center">
+            {err && (
+              <div className="max-w-[320px] w-full flex justify-center items-center text-brand-red text-sm">
+                {err}
               </div>
             )}
             <button
@@ -103,14 +108,12 @@ export const SignUp: NextPage = () => {
           </div>
         </form>
         <div className="w-full flex items-center justify-center border border-brand-border rounded-sm py-6 px-4">
-          <p className="text-sm text-brand-black/80 mr-2">
-            Don't have an account?
-          </p>
+          <p className="text-sm text-brand-black/80 mr-2">Have an account?</p>
           <button
             className=" text-brand-300 font-semibold"
             onClick={() => Router.replace("/auth/signin")}
           >
-            Sign Up
+            Sign In
           </button>
         </div>
       </div>

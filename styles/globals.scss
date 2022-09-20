@@ -2,21 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap");
 
-$background: #FAFFFE;
-$brand_color: #1D8780;
+$background: #fafffe;
+$brand_color: #1d8780;
 $black: #262626;
 $white: #ffffff;
 
-$border_color: #E1E1E1;
+$header_height: 50px;
+
+$border_color: #e1e1e1;
 $border_radius_input: 2px;
 
 html,
 body {
     padding: 0;
     margin: 0;
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
     color: $black;
     background-color: $background;
     min-height: 100% !important;
@@ -33,10 +35,43 @@ body {
 input {
     border: 1px solid $border_color;
     border-radius: $border_radius_input;
-    
+
     &:focus {
         outline: none;
         border: 1px solid $brand_color;
     }
+
+    &::placeholder {
+        color: lighten($black, 60);
+        font-size: 14px
+    }
 }
- 
+
+.triangle {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid white;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: $header_height;
+}
+
+.page {
+    width: 100%;
+    position: absolute;
+    top: $header_height;
+    min-height: calc(100vh - $header_height);
+}
+
+.room-menu {
+    width: 300px;
+    min-width: 300px;
+    min-height: calc(100vh - $header_height);
+}
